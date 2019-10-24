@@ -22,7 +22,7 @@ int sum(const vector<int>& abc){
 
 
 void change(Vehicle& v){
-    if(v == Car){
+    if(v == Vehicle(Car)){
         v = Vehicle(MotorBike);
     }else{
         v = Vehicle(Car);
@@ -30,17 +30,32 @@ void change(Vehicle& v){
 }
 
 
-int calculateDay(const vector<int>& cars, const vector<int>& motorBikes, const int& changeCost){
+int calculateDay(const vector<int>& cars, const vector<int>& motorBikes, const int& changeCost) {
+    int result = 0;
+
+
     int cars_sum = sum(cars);
     int bikes_sum = sum(motorBikes);
 
-    auto v = Vehicle(Car);
-    for(unsigned long i = 0; i < cars.size();i++){
+    for (Vehicle v: {Vehicle(Car), Vehicle(MotorBike)})
+        for (unsigned long i = 0; i < cars.size(); i++) {
+            int car = cars[i];
+            int motorBike = motorBikes[i];
 
-        cars_sum -= cars[i];
-        bikes_sum -= motorBikes[i];
+            cars_sum -= car;
+            bikes_sum -= motorBike;
 
-    }
+            if (v == Vehicle(Car)) {
+                result += car;
+            } else {
+                result += motorBike;
+            }
+
+            if (other_v_sum + changeCost < current_v_sum) {
+                change(v);
+            }
+        }
+}
 
 
 
