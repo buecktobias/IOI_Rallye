@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 
 using namespace std;
@@ -30,52 +29,61 @@ void change(Vehicle& v){
 }
 
 
-int calculateDay(const vector<int>& cars, const vector<int>& motorBikes, const int& changeCost) {
-    int smallestResult = INT32_MAX;
-
-
-    int cars_sum = sum(cars);
+int calculateDayFor(const vector<int>& cars, const vector<int>& motorBikes, const int& changeCost, Vehicle v){
+    int cars_sum = sum(cars); // TODO could be improved by only calculating the sum ones for both vehicles!
     int bikes_sum = sum(motorBikes);
+    int result = 0;
+    for (unsigned long i = 0; i < cars.size(); i++) {
+        const int car = cars[i];
+        const int motorBike = motorBikes[i];
 
-    for (Vehicle startVehicle: {Vehicle(Car), Vehicle(MotorBike)}) {
-        int result = 0;
-        for (unsigned long i = 0; i < cars.size(); i++) {
-            const int car = cars[i];
-            const int motorBike = motorBikes[i];
 
-            cars_sum -= car;
-            bikes_sum -= motorBike;
-            int othersSum;
-            int currentSum;
-            vector<int> current;
-            vector<int> other;
-            if (startVehicle == Vehicle(Car)) {
-                // car
-                current = cars;
-                other = motorBikes;
-                currentSum = cars_sum;
-                othersSum = bikes_sum;
-                result += car;
-            } else {
-                // motor bike
-                current = motorBikes;
-                other = cars;
-                currentSum = bikes_sum;
-                othersSum = cars_sum;
-                result += motorBike;
-            }
-
-            if (othersSum + changeCost < currentSum) {
-                change(startVehicle);
-                result += changeCost;
-                break;
-            }
+        int othersSum;
+        int currentSum;
+        vector<int> current;
+        vector<int> other;
+        if (v == Vehicle(Car)) {
+            // car
+            current = cars;
+            other = motorBikes;
+            currentSum = cars_sum;
+            othersSum = bikes_sum;
+        } else {
+            // motor bike
+            current = motorBikes;
+            other = cars;
+            currentSum = bikes_sum;
+            othersSum = cars_sum;
         }
 
+        if (othersSum + changeCost < currentSum) {
+            // it is only one change possible so after you changed you can break the for loop
+            // and add all the remaining costs
+            result += changeCost; // the costs to change has to be added
+            result += othersSum;
+            break;
+        }
+
+        if(v == Vehicle(Car)){
+            result += car;
+        }else{
+            result += motorBike;
+        }
+
+        cars_sum -= car;
+        bikes_sum -= motorBike;
+    }
+    return result;
+
+}
+
+int calculateDay(const vector<int>& cars, const vector<int>& motorBikes, const int& changeCost) {
+    int smallestResult = INT32_MAX;
+    for (Vehicle startVehicle: {Vehicle(Car), Vehicle(MotorBike)}) {
+        int result = calculateDayFor(cars, motorBikes, changeCost, startVehicle);
         if(result < smallestResult){
             smallestResult = result;
         }
-
     }
     return smallestResult;
 }
@@ -93,7 +101,7 @@ int calculate(const vector<int>& cars, const vector<int>& motorBikes, const int&
 
 
 int main() {
-    /* Input
+    // Input
     int testCases;
     cin >> testCases;
     for(int testCase=0; testCase < testCases;testCase++){
@@ -114,13 +122,7 @@ int main() {
             cin >> motorBikes[i];
         }
         cout << "Case #" << testCase + 1 << ": " << calculate(cars, motorBikes, lengthOfDay, costToChange) << endl;
-
-
     }
-    */
 
-    vector<int> cars       {1,1,   20,20};
-    vector<int> motorBikes {20,20,  1,1};
-    cout << calculate(cars,motorBikes,2,100);
     return 0;
 }
